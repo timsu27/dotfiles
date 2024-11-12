@@ -1,0 +1,61 @@
+[project]
+name = ""
+version = "0.1.0"
+
+[tool.poetry]
+name = ""
+version = "0.1.0"
+description = ""
+authors = ["timsu27 <omg80827@gmail.com>"]
+readme = "README.md"
+# packages = [{include = ""}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["all"], version = "^0.112.0"}
+sqlmodel = {extras = ["async"], version = "^0.0.21"}
+pydantic = "^2.8.2"
+flake8 = "^7.1.1"
+pre-commit = "^3.8.0"
+docopt-ng = "^0.8.1"
+schema = "^0.7.5"
+python-dotenv = "^1.0.1"
+coverage = {extras = ["toml"], version = "^7.2.3"}
+pre-commit = "^3.2.2"
+pytest-cov = "^4.1.0"
+uvicorn = "^0.30.6"
+asyncpg = "^0.29.0"
+greenlet = "^3.0.3"
+alembic = "^1.13.2"
+psycopg2-binary = "^2.9.9"
+
+[tool.poetry.group.dev.dependencies]
+pytest-mock = "^3.14.0"
+pytest-asyncio = "^0.23.8"
+pydocstyle = "^6.1.1"
+
+
+# [[tool.poetry.source]]
+# name = "thingnario-gitlab"
+# url = "https://gitlab.com/api/v4/groups/979774/-/packages/pypi/simple"
+# priority = "explicit"
+
+[tool.setuptools]
+# ...
+# By default, include-package-data is true in pyproject.toml, so you do
+# NOT have to specify this line.
+include-package-data = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# [tool.pytest.ini_options]
+# testpaths = ["tests"]
+# addopts = "--cov-config=.coveragerc --cov=forecaster"
+
+[tool.pydocstyle]
+match = '(?!test_|conftest).*\.py'
+
+[pycodestyle]
+max-line-length = 100
