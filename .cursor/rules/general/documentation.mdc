@@ -3,160 +3,98 @@ description:
 globs:
 alwaysApply: false
 ---
-# Documentation Principles
+# Documentation Essentials
 
-Essential documentation practices for maintainable and accessible code.
+Core documentation practices for maintainable code and projects.
 
 ## Code Documentation
 
 ### Function Documentation
 ```python
-def calculate_discount(price: float, discount_rate: float) -> float:
-    """Calculate discount amount for a given price.
+def calculate_discount(price: float, rate: float) -> float:
+    """Calculate discount amount.
 
     Args:
         price: Original price in dollars
-        discount_rate: Discount percentage as decimal (0.1 = 10%)
+        rate: Discount rate as decimal (0.1 = 10%)
 
     Returns:
         Discount amount in dollars
-
-    Raises:
-        ValueError: If price is negative or discount_rate > 1
     """
-    if price < 0 or discount_rate > 1:
-        raise ValueError("Invalid input parameters")
-    return price * discount_rate
+    return price * rate
 ```
 
-### Inline Comments
+### Smart Comments
 ```python
-# WHY: Use cache to avoid expensive API calls
+# WHY: Cache prevents expensive API calls
 cache_key = f"user:{user_id}:profile"
 
-# Complex business logic - explain the reasoning
-if user.subscription_tier == 'premium' and user.usage < monthly_limit:
-    # Premium users get extended quota during promotional period
-    effective_limit = monthly_limit * 1.5
+# Business rule: Premium users get extended quota
+if user.tier == 'premium' and user.usage < limit:
+    effective_limit = limit * 1.5
 ```
 
 ### Comment Guidelines
-- **Explain WHY, not WHAT**: Code should be self-explanatory
+- **Explain WHY, not WHAT**: Code should be self-documenting
 - **Business context**: Why this logic exists
 - **Non-obvious decisions**: Alternative approaches considered
 - **Temporary fixes**: TODO items with context
 
 ## API Documentation
 
-### OpenAPI/Swagger
+### Essential Elements
 ```yaml
 /users/{id}:
   get:
     summary: Get user by ID
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
     responses:
       200:
         description: User details
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
       404:
         description: User not found
 ```
 
-### Essential API Docs
-- **Clear endpoint descriptions**: What the endpoint does
-- **Request examples**: Sample requests with all parameters
+### Required Sections
+- **Endpoint descriptions**: What each endpoint does
+- **Request examples**: Sample requests with parameters
 - **Response examples**: Success and error responses
-- **Authentication**: How to authenticate requests
-- **Rate limits**: Usage restrictions and quotas
+- **Authentication**: How to authenticate
+- **Rate limits**: Usage restrictions
 
-## README Structure
+## Project Documentation
 
-### Essential Sections
+### README Structure
 ```markdown
 # Project Name
-Brief description of what the project does.
+Brief description of purpose.
 
 ## Quick Start
-```bash
-pip install -r requirements.txt
-python app.py
-```
+npm install && npm start
 
 ## API Endpoints
-- `GET /users` - List all users
-- `POST /users` - Create new user
+- GET /users - List users
+- POST /users - Create user
 
-## Configuration
-Set these environment variables:
-- `DATABASE_URL` - Database connection string
-- `SECRET_KEY` - JWT signing key
-
-## Development
-```bash
-# Run tests
-pytest
-
-# Start development server
-uvicorn main:app --reload
-```
+## Environment Variables
+- DATABASE_URL - Database connection
+- SECRET_KEY - JWT signing key
 ```
 
-### README Best Practices
-- **Start with purpose**: What problem does this solve?
+### Essential Sections
+- **Purpose**: What problem this solves
 - **Quick start**: Get running in <5 minutes
-- **Examples**: Show common use cases
-- **Environment setup**: Required dependencies and configuration
-
-## Database Documentation
-
-### Schema Documentation
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,  -- User's login email
-    created_at TIMESTAMP DEFAULT NOW(),  -- Account creation time
-    subscription_tier VARCHAR(50)        -- premium, basic, trial
-);
-
--- Indexes for performance
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_created_at ON users(created_at);
-```
-
-### Migration Documentation
-```python
-"""Add user subscription tiers
-
-Revision ID: abc123
-Revises: def456
-Create Date: 2024-01-15 10:30:00
-
-Business Context:
-- Support new premium subscription model
-- Migrate existing users to 'basic' tier
-- Enable feature flags based on subscription
-"""
-```
+- **Key endpoints**: Main functionality
+- **Configuration**: Required environment setup
 
 ## Change Documentation
 
 ### Commit Messages
 ```bash
-# Good commit messages
-feat(auth): add JWT token refresh endpoint
-fix(api): handle empty response in user lookup
-docs(readme): update installation instructions
+feat(auth): add JWT refresh endpoint
+fix(api): handle empty user response
+docs(readme): update setup instructions
 
 # Format: type(scope): description
-# Types: feat, fix, docs, style, refactor, test, chore
 ```
 
 ### Changelog Format
@@ -164,85 +102,41 @@ docs(readme): update installation instructions
 ## [2.1.0] - 2024-01-15
 
 ### Added
-- JWT token refresh endpoint for extended sessions
-- User subscription tier management
+- JWT token refresh endpoint
 
 ### Fixed
-- Empty response handling in user lookup API
-- Memory leak in background job processor
+- Empty response handling in user API
 
 ### Changed
-- Updated rate limiting from 100 to 150 requests/hour
+- Rate limiting increased to 150/hour
 ```
 
-## Documentation Maintenance
-
-### Keep It Current
-- **Update with code changes**: Documentation as part of PR process
-- **Review regularly**: Quarterly documentation audits
-- **Remove outdated content**: Delete obsolete information
-- **Link validation**: Check external links periodically
+## Documentation Standards
 
 ### Writing Guidelines
 - **Be concise**: Remove unnecessary words
 - **Use examples**: Show, don't just tell
-- **Consistent terminology**: Use same terms throughout
-- **Active voice**: "The API returns data" vs "Data is returned"
+- **Stay current**: Update with code changes
+- **Test examples**: Ensure code samples work
 
-## Documentation Tools
-
-### Essential Stack
-- **Code comments**: Inline documentation
-- **README.md**: Project overview and setup
-- **API docs**: OpenAPI/Swagger for REST APIs
-- **Changelog**: Track changes over time
-- **Architecture docs**: High-level system design
-
-### Automation
-```yaml
-# Auto-generate API docs from code
-swagger: "3.0"
-info:
-  title: User API
-  version: "1.0"
-paths:
-  # Generated from FastAPI decorators
-```
-
-### Quality Checks
-- **Spell check**: Use automated tools
-- **Link validation**: Verify external references
-- **Code examples**: Test that examples actually work
-- **Consistency**: Use linting tools for markdown
+### Maintenance
+- **Review quarterly**: Check for outdated content
+- **Update with PRs**: Documentation as part of code changes
+- **Remove obsolete**: Delete outdated information
+- **Validate links**: Check external references
 
 ## Documentation Checklist
 
 **For New Features**
-- [ ] Updated README if public API changes
 - [ ] Function/class docstrings added
 - [ ] API documentation updated
+- [ ] README updated if public API changes
 - [ ] Examples provided for complex features
 
-**For Bug Fixes**
-- [ ] Comments explain any non-obvious fixes
+**For Releases**
 - [ ] Changelog entry added
-- [ ] Related documentation updated
-
-**Regular Maintenance**
-- [ ] Quarterly documentation review
-- [ ] Remove outdated content
-- [ ] Update examples with current syntax
-- [ ] Validate external links
+- [ ] Version numbers updated
+- [ ] Migration guides provided
+- [ ] Breaking changes documented
 
 Good documentation saves more time than it takes to write.
-```
-
-This documentation rule provides:
-1. **Practical examples** for different types of documentation
-2. **Clear guidelines** on what to document and when
-3. **Structured approaches** for README, API docs, and code comments
-4. **Maintenance practices** to keep documentation current
-5. **Quality standards** for consistent, useful documentation
-6. **Actionable checklists** for systematic documentation practices
-
-The rule is concise while covering all essential documentation needs for software projects.

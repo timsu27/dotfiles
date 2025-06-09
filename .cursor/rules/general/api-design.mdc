@@ -3,17 +3,18 @@ description:
 globs:
 alwaysApply: false
 ---
-# API Design Principles
+# API Design Essentials
 
-Universal principles for designing clean, maintainable, and intuitive APIs.
+Core principles for designing clean, intuitive APIs.
+
 ## RESTful Design
 
 ### HTTP Methods
 - **GET**: Retrieve data (idempotent, cacheable)
-- **POST**: Create new resources
-- **PUT**: Update/replace entire resource (idempotent)
-- **PATCH**: Partial resource updates
-- **DELETE**: Remove resources (idempotent)
+- **POST**: Create resources
+- **PUT**: Update/replace entire resource
+- **PATCH**: Partial updates
+- **DELETE**: Remove resources
 
 ### Resource Naming
 GET /users # List users
@@ -24,18 +25,11 @@ DELETE /users/123 # Delete user
 
 ### Nested resources
 GET /users/123/posts # User's posts
-POST /users/123/posts # Create post for user
-## URL Structure
-
-### Best Practices
+### URL Best Practices
 - **Nouns, not verbs**: `/users` not `/getUsers`
 - **Plural nouns**: `/users/123` not `/user/123`
-- **Lowercase**: `/user-profiles` not `/UserProfiles`
-- **Hyphens over underscores**: `/user-profiles` not `/user_profiles`
-
-### Query Parameters
-GET /users?limit=20&offset=40&sort=created_at&order=desc
-GET /posts?category=tech&published=true&author_id=123
+- **Lowercase with hyphens**: `/user-profiles`
+- **Query parameters**: `/users?limit=20&sort=name`
 
 ## HTTP Status Codes
 
@@ -44,16 +38,16 @@ GET /posts?category=tech&published=true&author_id=123
 - **201 Created**: Successful POST
 - **204 No Content**: Successful DELETE
 
-### Client Error (4xx)
+### Client Errors (4xx)
 - **400 Bad Request**: Invalid request data
 - **401 Unauthorized**: Authentication required
 - **403 Forbidden**: Insufficient permissions
 - **404 Not Found**: Resource doesn't exist
-- **422 Unprocessable Entity**: Validation errors
+- **422 Unprocessable**: Validation errors
 
-### Server Error (5xx)
-- **500 Internal Server Error**: Generic server error
-- **503 Service Unavailable**: Temporary service issues
+### Server Errors (5xx)
+- **500 Internal Error**: Generic server error
+- **503 Service Unavailable**: Temporary issues
 
 ## Request/Response Format
 
@@ -65,9 +59,6 @@ GET /posts?category=tech&published=true&author_id=123
     "id": 123,
     "name": "John Doe",
     "email": "john@example.com"
-  },
-  "meta": {
-    "timestamp": "2024-01-01T00:00:00Z"
   }
 }
 
@@ -76,10 +67,7 @@ GET /posts?category=tech&published=true&author_id=123
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Invalid email format",
-    "details": {
-      "field": "email",
-      "value": "invalid-email"
-    }
+    "field": "email"
   }
 }
 ```
@@ -92,20 +80,12 @@ GET /posts?category=tech&published=true&author_id=123
     "page": 1,
     "limit": 20,
     "total": 150,
-    "total_pages": 8,
-    "has_next": true,
-    "has_prev": false
+    "has_next": true
   }
 }
 ```
 
-## API Versioning
-
-### URL Versioning
-/api/v1/users
-/api/v2/users
-
-## Security Principles
+## API Security
 
 ### Authentication
 ```http
@@ -113,102 +93,83 @@ Authorization: Bearer <jwt-token>
 Authorization: Basic <base64-credentials>
 ```
 
+### Security Headers
+```http
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=31536000
+```
+
 ### Input Validation
 - **Validate all inputs**: Never trust client data
-- **Sanitize data**: Prevent injection attacks
 - **Rate limiting**: Protect against abuse
 - **HTTPS only**: Encrypt all communications
+- **Sanitize data**: Prevent injection attacks
 
 ## Error Handling
 
-### Consistent Error Format
+### Error Response Format
 ```json
 {
   "error": {
     "type": "validation_error",
     "message": "Validation failed",
     "code": "INVALID_INPUT",
-    "timestamp": "2024-01-01T00:00:00Z",
-    "request_id": "req_123456",
     "details": [
       {
         "field": "email",
-        "message": "Invalid email format",
-        "code": "INVALID_EMAIL"
+        "message": "Invalid email format"
       }
     ]
   }
 }
 ```
 
-### Error Response Guidelines
-- **Clear messages**: Human-readable error descriptions
-- **Error codes**: Machine-readable error identifiers
-- **Field-specific errors**: Indicate which fields failed validation
-- **Request tracking**: Include request ID for debugging
+### Error Guidelines
+- **Clear messages**: Human-readable descriptions
+- **Error codes**: Machine-readable identifiers
+- **Field-specific**: Indicate which fields failed
+- **Consistent format**: Same structure across endpoints
 
-## Performance Optimization
+## Performance & Caching
 
-### Caching
+### Caching Headers
 ```http
 Cache-Control: public, max-age=3600
 ETag: "abc123"
 Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
 ```
 
-### Efficient Queries
-GET /users?fields=id,name,email # Field selection
-GET /users?include=profile,posts # Related data inclusion
-### Compression
+### Optimization
+- **Field selection**: `/users?fields=id,name,email`
+- **Include related data**: `/users?include=profile`
+- **Compression**: gzip, deflate
+- **Pagination**: Limit response size
+
+## API Versioning
+
+### URL Versioning
+/api/v1/users
+/api/v2/users
+
+### Header Versioning
 ```http
-Accept-Encoding: gzip, deflate
-Content-Encoding: gzip
-```
-
-## API Documentation
-
-### Essential Elements
-- **Clear descriptions**: What each endpoint does
-- **Request examples**: Sample requests with all parameters
-- **Response examples**: Success and error responses
-- **Authentication**: How to authenticate requests
-- **Rate limits**: Usage restrictions and quotas
-
-### OpenAPI/Swagger
-```yaml
-paths:
-  /users:
-    get:
-      summary: List users
-      parameters:
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 20
-      responses:
-        200:
-          description: Success
+Accept: application/vnd.api+json;version=1
+API-Version: v2
 ```
 
 ## Best Practices
 
-### Consistency
-- **Naming conventions**: Stick to chosen patterns
-- **Response format**: Same structure across endpoints
-- **Error handling**: Consistent error response format
-- **HTTP methods**: Use semantically correct methods
+### Design Principles
+- **Consistency**: Same patterns across endpoints
+- **Predictability**: Intuitive URL structure
+- **Stateless**: Each request self-contained
+- **Idempotent**: Safe to retry operations
 
-### Usability
-- **Predictable URLs**: Follow logical resource hierarchy
-- **Self-descriptive**: URLs and responses should be intuitive
-- **Stateless**: Each request contains all necessary information
-- **Idempotent operations**: Safe to retry GET, PUT, DELETE
+### Documentation
+- **Clear descriptions**: What each endpoint does
+- **Request examples**: All parameters shown
+- **Response examples**: Success and error cases
+- **Authentication**: How to authenticate requests
 
-### Maintainability
-- **Backward compatibility**: Don't break existing clients
-- **Deprecation strategy**: Clear timeline for removing features
-- **Versioning**: Plan for API evolution
-- **Monitoring**: Track usage and performance metrics
-
-Design APIs that are intuitive for developers and easy to maintain over time.
+Design APIs that are intuitive for developers and maintainable over time.
