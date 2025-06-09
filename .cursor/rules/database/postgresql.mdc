@@ -4,35 +4,37 @@ globs: **/*.sql
 alwaysApply: false
 ---
 ---
-description: This rule explains PostgreSQL database design patterns and advanced features usage.
+description: PostgreSQL-specific patterns and advanced features. Extends database fundamentals with PostgreSQL-specific best practices.
 globs: **/*.sql
 alwaysApply: false
 ---
 
-# PostgresSQL rules
+# PostgreSQL Best Practices
 
-## General
+*This rule extends [fundamentals.mdc](mdc:.cursor/rules/database/fundamentals.mdc) with PostgreSQL-specific patterns.*
 
-- Use lowercase for SQL reserved words to maintain consistency and readability.
-- Employ consistent, descriptive identifiers for tables, columns, and other database objects.
-- Use white space and indentation to enhance the readability of your code.
-- Store dates in ISO 8601 format (`yyyy-mm-ddThh:mm:ss.sssss`).
-- Include comments for complex logic, using '/* ... */' for block comments and '--' for line comments.
+## PostgreSQL-Specific Conventions
 
-## Naming Conventions
+### Code Style
+- **Lowercase SQL keywords**: Use lowercase for SQL reserved words (PostgreSQL convention)
+- **Descriptive identifiers**: Tables, columns, and objects should be descriptive and unique
+- **Whitespace formatting**: Use proper indentation for readability
+- **ISO 8601 dates**: Store dates in `yyyy-mm-ddThh:mm:ss.sssss` format
+- **Comments**: Use `/* ... */` for blocks, `--` for line comments
 
-- Avoid SQL reserved words and ensure names are unique and under 63 characters.
-- Use snake_case for tables and columns.
-- Prefer plurals for table names
-- Prefer singular names for columns.
+### PostgreSQL Naming Standards
+- **Character limit**: Names must be under 63 characters (PostgreSQL limit)
+- **snake_case**: Use for tables and columns (PostgreSQL convention)
+- **Table names**: Prefer plurals (`users`, `orders`) in PostgreSQL
+- **Column names**: Use singular forms (`user_id`, `email`)
 
-## Tables
+## PostgreSQL Table Design
 
-- Avoid prefixes like 'tbl_' and ensure no table name matches any of its column names.
-- Always add an `id` column of type `identity generated always` unless otherwise specified.
-- Create all tables in the `public` schema unless otherwise specified.
-- Always add the schema to SQL queries for clarity.
-- Always add a comment to describe what the table does. The comment can be up to 1024 characters.
+### Identity Columns (PostgreSQL 10+)
+- **Prefer IDENTITY**: Use `GENERATED ALWAYS AS IDENTITY` for primary keys
+- **Schema specification**: Explicitly reference `public` schema in queries
+- **Table documentation**: Add comments to all tables (up to 1024 characters)
+- **Avoid prefixes**: Don't use `tbl_` or similar prefixes
 
 ## Columns
 
@@ -40,19 +42,20 @@ alwaysApply: false
 - For references to foreign tables, use the singular of the table name with the `_id` suffix. For example `user_id` to reference the `users` table
 - Always use lowercase except in cases involving acronyms or when readability would be enhanced by an exception.
 
-#### Examples:
-
+### PostgreSQL Table Example
 ```sql
-create table books (
-  id bigint generated always as identity primary key,
-  title text not null,
-  author_id bigint references authors (id)
+-- PostgreSQL-specific syntax
+CREATE TABLE books (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  title TEXT NOT NULL,
+  author_id BIGINT REFERENCES authors (id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-comment on table books is 'A list of all the books in the library.';
+
+COMMENT ON TABLE books IS 'Library book catalog with author relationships';
 ```
 
-
-## Queries
+## PostgreSQL Query Patterns
 
 - When the query is shorter keep it on just a few lines. As it gets larger start adding newlines for readability
 - Add spaces for readability.

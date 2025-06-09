@@ -4,18 +4,28 @@ globs: **/*.sql
 alwaysApply: false
 ---
 ---
-description: This rule explains MySQL database design patterns and query optimization techniques.
+description: MySQL-specific patterns and optimizations. Extends database fundamentals with MySQL-specific best practices.
 globs: **/*.sql
 alwaysApply: false
 ---
 
-# MySQL rules
+# MySQL Best Practices
 
-- Use appropriate data types to optimize storage and performance (e.g., INT for IDs, VARCHAR with appropriate length)
-- Create indexes for columns used in WHERE, JOIN, and ORDER BY clauses
-- Use foreign keys to maintain referential integrity
-- Use EXPLAIN to analyze and optimize queries
-- Avoid using SELECT * and only retrieve needed columns
-- Use prepared statements to prevent SQL injection
-- Use appropriate character set and collation (e.g., utf8mb4_unicode_ci)
-- Use transactions for operations that must be atomic
+*This rule extends [fundamentals.mdc](mdc:.cursor/rules/database/fundamentals.mdc) with MySQL-specific patterns.*
+
+## MySQL-Specific Optimizations
+
+### Data Types
+- **Efficient types**: Use `INT` for IDs, `VARCHAR(255)` for indexed strings
+- **Character set**: Use `utf8mb4` with `utf8mb4_unicode_ci` collation
+- **Storage engines**: Prefer InnoDB for transactional tables
+
+### Performance
+- **Index strategy**: Index columns used in WHERE, JOIN, and ORDER BY clauses
+- **Query analysis**: Use `EXPLAIN` and `EXPLAIN FORMAT=JSON` for optimization
+- **Prepared statements**: Use for security and performance benefits
+
+### MySQL Features
+- **Foreign keys**: Always use with InnoDB for referential integrity
+- **Transactions**: Essential for atomic operations
+- **Query optimization**: Avoid `SELECT *`, retrieve only needed columns

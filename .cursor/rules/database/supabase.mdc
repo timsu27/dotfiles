@@ -5,7 +5,9 @@ alwaysApply: false
 ---
 # Supabase Best Practices
 
-## Database Schema Design
+*This rule extends [fundamentals.mdc](mdc:.cursor/rules/database/fundamentals.mdc) with Supabase-specific features and patterns. Since Supabase is PostgreSQL-based, also see [postgresql.mdc](mdc:.cursor/rules/database/postgresql.mdc) for underlying PostgreSQL patterns.*
+
+## Supabase Schema Design
 - **RLS (Row Level Security)**: Enable on all tables, define policies per user role
 - **Foreign keys**: Always use for referential integrity
 - **Indexes**: Create on frequently queried columns
