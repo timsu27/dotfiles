@@ -1,0 +1,130 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Supabase Best Practices
+
+## Database Schema Design
+- **RLS (Row Level Security)**: Enable on all tables, define policies per user role
+- **Foreign keys**: Always use for referential integrity
+- **Indexes**: Create on frequently queried columns
+- **Timestamps**: Use `created_at` and `updated_at` with triggers
+
+```sql
+-- Enable RLS and create policy
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own profile" ON profiles
+  FOR SELECT USING (auth.uid() = user_id);
+```
+
+## Client Integration
+### JavaScript/TypeScript
+```typescript
+import { createClient } from '@supabase/supabase-js'
+
+// Type-safe client
+const supabase = createClient<Database>(url, anonKey)
+
+// Query with types
+const { data, error } = await supabase
+  .from('profiles')
+  .select('id, name, email')
+  .eq('active', true)
+  .single()
+```
+
+### Python
+```python
+from supabase import create_client, Client
+
+supabase: Client = create_client(supabase_url, supabase_key)
+
+# Insert with conflict resolution
+response = supabase.table('users').upsert({
+    'id': user_id,
+    'email': email,
+    'updated_at': 'now()'
+}).execute()
+```
+
+## Authentication Patterns
+```typescript
+// Auth state management
+const { data: { user } } = await supabase.auth.getUser()
+
+// Protected route check
+const { data: { session } } = await supabase.auth.getSession()
+if (!session) throw new Error('Not authenticated')
+
+// Social OAuth
+await supabase.auth.signInWithOAuth({
+  provider: 'github',
+  options: { redirectTo: `${origin}/auth/callback` }
+})
+```
+
+## Real-time Subscriptions
+```typescript
+// Subscribe to changes
+const subscription = supabase
+  .channel('profiles-changes')
+  .on('postgres_changes',
+    { event: '*', schema: 'public', table: 'profiles' },
+    (payload) => console.log('Change:', payload)
+  )
+  .subscribe()
+
+// Cleanup
+subscription.unsubscribe()
+```
+
+## Storage Management
+```typescript
+// File upload with path organization
+const { data, error } = await supabase.storage
+  .from('avatars')
+  .upload(`users/${userId}/avatar.jpg`, file, {
+    cacheControl: '3600',
+    upsert: true
+  })
+
+// Generate signed URL
+const { data: signedUrl } = await supabase.storage
+  .from('avatars')
+  .createSignedUrl('users/123/avatar.jpg', 60)
+```
+
+## Edge Functions
+```typescript
+// Edge function structure
+export default async function handler(req: Request) {
+  const { data } = await req.json()
+
+  // Database operations in edge function
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  return new Response(JSON.stringify({ result }), {
+    headers: { 'Content-Type': 'application/json' }
+  })
+}
+```
+
+## Security Best Practices
+- **Service role key**: Only use server-side, never expose to client
+- **Anon key**: Safe for client-side, respects RLS policies
+- **API rate limiting**: Implement in your application layer
+- **Validate inputs**: Always sanitize data before database operations
+- **Use transactions**: For multi-table operations
+
+## Performance Optimization
+- **Select specific columns**: Avoid `SELECT *`
+- **Use indexes**: On filter and join columns
+- **Batch operations**: Use `.upsert()` for multiple records
+- **Connection pooling**: Configure `db_pool_size` appropriately
+- **Cache frequent queries**: Use CDN or application-level caching
+
+Always use TypeScript with generated types from Supabase CLI for type safety.

@@ -1,0 +1,61 @@
+---
+description: Applies general Python style guidelines including functional programming preferences and naming conventions.
+globs: **/*.py
+alwaysApply: false
+---
+# Python General Style Guidelines
+
+## Code Style & Formatting
+- **PEP 8 compliance**: Follow Python's official style guide
+- **Line length**: Max 100 characters (Black formatter standard)
+- **Imports**: Group stdlib, third-party, local imports with blank lines
+- **Naming**: `snake_case` for functions/variables, `PascalCase` for classes
+
+## Function Design
+- **Type hints**: Always use for parameters and return values
+```python
+def process_data(items: List[Dict[str, Any]]) -> Optional[ProcessedData]:
+    return ProcessedData(items) if items else None
+```
+- **Small functions**: Single responsibility, max 20-30 lines
+- **Descriptive names**: Use auxiliary verbs (`is_valid`, `has_permission`, `can_access`)
+
+## Modern Python Patterns
+- **F-strings**: Prefer over `.format()` or `%` formatting
+- **List/dict comprehensions**: Use for simple transformations
+- **Dataclasses**: Use instead of simple classes with `__init__`
+- **Context managers**: Use `with` statements for resource management
+- **Pathlib**: Use `Path` objects instead of string manipulation
+
+## Functional Programming
+- **Prefer functions over classes** when possible
+- **Pure functions**: Avoid side effects where feasible
+- **Immutable data**: Use tuples, frozensets, dataclasses with `frozen=True`
+- **Generator expressions**: Use for memory efficiency
+
+## Error Handling
+```python
+# Specific exceptions
+raise ValueError("Invalid user ID format")
+
+# EAFP (Easier to Ask for Forgiveness than Permission)
+try:
+    return data['key']
+except KeyError:
+    return default_value
+```
+
+## Project Structure
+project/
+├── src/package_name/ # Source code
+├── tests/ # Test files
+├── docs/ # Documentation
+└── pyproject.toml # Dependencies & config
+
+## Dependencies & Imports
+- **Absolute imports**: Prefer over relative imports
+- **Import order**: stdlib → third-party → local
+- **Lazy imports**: Import inside functions for heavy modules
+- **Use `uv`**: For dependency management (per workspace rules)
+
+Follow the RORO pattern (Receive an Object, Return an Object) for complex functions.

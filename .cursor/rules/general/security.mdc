@@ -1,0 +1,148 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Security Fundamentals
+
+Essential security practices for secure software development.
+
+## Authentication & Authorization
+
+### Secure Authentication
+```python
+# Strong password hashing
+import bcrypt
+hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+# JWT with expiration
+jwt.encode({"user_id": 123, "exp": datetime.utcnow() + timedelta(hours=1)}, secret)
+
+# Role-based access
+@require_permission('users:read')
+def get_users(): return users
+```
+
+### Session Security
+- **HTTPS only**: Secure cookie transmission
+- **HttpOnly cookies**: Prevent XSS access
+- **Session timeout**: Auto-expire inactive sessions
+- **CSRF tokens**: Protect state-changing operations
+
+## Input Validation
+
+### Prevent Injection
+```python
+# SQL injection prevention
+cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+
+# XSS prevention
+def escape_html(text):
+    return html.escape(text)
+# Command injection prevention
+import shlex
+safe_input = shlex.quote(user_input)
+```
+
+### Validation Rules
+- **Server-side only**: Never trust client validation
+- **Whitelist approach**: Allow known good, block everything else
+- **Type checking**: Enforce expected data types
+- **Sanitize output**: Escape based on context (HTML, SQL, etc.)
+
+## Secrets Management
+
+### Environment Variables
+```bash
+# .env (never commit)
+DATABASE_URL=postgresql://user:pass@host/db
+JWT_SECRET=long_random_string_here
+API_KEY=external_service_key
+```
+
+### Best Practices
+- **Rotate regularly**: Change secrets periodically
+- **Principle of least privilege**: Minimum required access
+- **External secret managers**: Use AWS Secrets Manager, Vault
+- **Separate environments**: Different secrets per environment
+
+## Secure Communication
+
+### HTTPS Configuration
+```python
+# Force HTTPS
+if not request.is_secure and PRODUCTION:
+    return redirect(request.url.replace('http://', 'https://'))
+
+# Security headers
+response.headers.update({
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Strict-Transport-Security': 'max-age=31536000'
+})
+```
+
+### API Security
+- **Rate limiting**: Prevent abuse (`@rate_limit('100/hour')`)
+- **API authentication**: Bearer tokens or API keys
+- **CORS configuration**: Restrict cross-origin requests
+- **Request validation**: Validate all API inputs
+
+## Common Vulnerabilities
+
+### OWASP Top Risks
+```python
+# 1. Injection - Use parameterized queries
+db.execute("SELECT * FROM users WHERE email = ?", [email])
+
+# 2. Broken Auth - Implement proper session management
+# 3. Sensitive Data - Encrypt PII and credentials
+# 4. XML External Entities - Disable XML external entity processing
+# 5. Broken Access Control - Verify permissions on every request
+```
+
+### Error Handling
+```python
+try:
+    user = authenticate(username, password)
+except AuthenticationError:
+    return "Invalid credentials"  # Generic message
+    # Log detailed error server-side only
+    logger.error(f"Auth failed for {username}: {error}")
+```
+
+## Security Monitoring
+
+### Essential Logging
+```python
+# Security events
+logger.warning(f"Failed login: {username} from {ip}")
+logger.info(f"Password changed: {user_id}")
+logger.error(f"Potential attack: {attack_type}")
+```
+
+### Key Metrics
+- **Failed login attempts**: Detect brute force
+- **Privilege escalation**: Monitor permission changes
+- **Data access patterns**: Identify anomalies
+- **Error rates**: Track security failures
+
+## Security Checklist
+
+**Critical Security Controls**
+- [ ] HTTPS enforced everywhere
+- [ ] Input validation on all user data
+- [ ] Secrets stored in environment variables
+- [ ] Authentication with secure sessions
+- [ ] Authorization checks on all operations
+- [ ] Security headers configured
+- [ ] Error handling doesn't leak information
+- [ ] Security logging implemented
+
+**Regular Security Tasks**
+- [ ] Dependency vulnerability scans
+- [ ] Security code reviews
+- [ ] Penetration testing
+- [ ] Secret rotation
+
+Security must be built-in from the start, not bolted on later.

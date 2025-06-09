@@ -1,0 +1,146 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Testing Principles
+
+Essential testing practices that apply across all programming languages and frameworks.
+
+## Testing Pyramid
+
+### Unit Tests (70%)
+- **Scope**: Single functions/methods in isolation
+- **Speed**: Fast execution (<1ms per test)
+- **Focus**: Business logic, edge cases, error conditions
+```python
+def test_calculate_discount():
+    assert calculate_discount(100, 0.1) == 10
+    assert calculate_discount(0, 0.1) == 0
+    assert calculate_discount(100, 0) == 0
+```
+
+### Integration Tests (20%)
+- **Scope**: Multiple components working together
+- **Focus**: API endpoints, database interactions, external services
+```python
+def test_user_registration_flow():
+    response = client.post("/users", json={"email": "test@example.com"})
+    assert response.status_code == 201
+    assert User.query.filter_by(email="test@example.com").first()
+```
+
+### End-to-End Tests (10%)
+- **Scope**: Complete user workflows
+- **Focus**: Critical business paths, user journeys
+- **Tools**: Browser automation, API testing
+
+## Test-Driven Development (TDD)
+
+### Red-Green-Refactor Cycle
+1. **Red**: Write failing test first
+2. **Green**: Write minimal code to pass
+3. **Refactor**: Improve code while keeping tests green
+
+### Benefits
+- **Design feedback**: Tests drive better API design
+- **Regression protection**: Prevent breaking existing functionality
+- **Documentation**: Tests serve as living specifications
+
+## Test Quality Guidelines
+
+### Good Tests Are
+- **Fast**: Run quickly to enable frequent execution
+- **Independent**: Don't depend on other tests
+- **Repeatable**: Same result every time
+- **Self-validating**: Clear pass/fail result
+- **Timely**: Written just before production code
+
+### Test Structure (AAA Pattern)
+```python
+def test_user_login():
+    # Arrange
+    user = create_user(email="test@example.com", password="secret")
+
+    # Act
+    result = login(user.email, "secret")
+
+    # Assert
+    assert result.success is True
+    assert result.user_id == user.id
+```
+
+## Testing Strategies
+
+### Mocking and Stubbing
+```python
+@patch('external_api.get_weather')
+def test_weather_service(mock_api):
+    mock_api.return_value = {"temp": 25, "condition": "sunny"}
+    result = get_weather_forecast("New York")
+    assert result["temperature"] == 25
+```
+
+### Test Data Management
+- **Fixtures**: Reusable test data setup
+- **Factories**: Generate test objects with variation
+- **Database**: Use test-specific database, clean after each test
+
+### Error Testing
+```python
+def test_invalid_input_raises_error():
+    with pytest.raises(ValueError, match="Invalid email format"):
+        create_user(email="invalid-email")
+```
+
+## Test Coverage
+
+### Meaningful Coverage
+- **Aim for 80-90%** line coverage on business logic
+- **Focus on critical paths** over coverage percentage
+- **Ignore trivial code** (getters, setters, simple properties)
+
+### What to Test
+- **Business logic**: Core algorithms and calculations
+- **Edge cases**: Boundary conditions, null/empty inputs
+- **Error conditions**: Invalid inputs, external failures
+- **Integration points**: APIs, databases, external services
+
+### What NOT to Test
+- **Framework code**: Don't test the testing framework
+- **Third-party libraries**: Trust they're already tested
+- **Trivial code**: Simple property access, basic getters
+
+## Best Practices
+
+### Test Organization
+tests/
+├── unit/ # Fast, isolated tests
+├── integration/ # Component interaction tests
+├── e2e/ # End-to-end user scenarios
+└── fixtures/ # Shared test data
+
+### Naming Conventions
+- **Descriptive names**: `test_user_cannot_login_with_invalid_password`
+- **Behavior focused**: What the test verifies, not implementation
+- **Consistent format**: `test_[unit_under_test]_[scenario]_[expected_result]`
+
+### Test Maintenance
+- **Keep tests simple**: One assertion per test when possible
+- **Refactor tests**: Apply same quality standards as production code
+- **Remove obsolete tests**: Delete tests for removed features
+- **Update with code changes**: Keep tests synchronized with implementation
+
+## Performance Testing
+
+### Load Testing
+- **Gradual load increase**: Start small, ramp up
+- **Realistic scenarios**: Use production-like data patterns
+- **Key metrics**: Response time, throughput, error rate
+
+### Monitoring in Tests
+- **Resource usage**: Memory leaks, CPU spikes
+- **Database performance**: Query count, execution time
+- **External dependencies**: Third-party service limits
+
+Write tests that fail for the right reasons and pass when the system works correctly.

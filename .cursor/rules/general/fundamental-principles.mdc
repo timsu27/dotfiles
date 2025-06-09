@@ -1,0 +1,38 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Fundamental Programming Principles
+
+Universal principles that apply across all programming languages.
+
+## SOLID Principles
+- **Single Responsibility**: One class/function, one reason to change
+- **Open/Closed**: Open for extension, closed for modification
+- **Liskov Substitution**: Subtypes must be substitutable for base types
+- **Interface Segregation**: Many specific interfaces > one general interface
+- **Dependency Inversion**: Depend on abstractions, not concretions
+
+## Core Principles
+- **DRY**: Don't Repeat Yourself - single source of truth
+- **KISS**: Keep It Simple, Stupid - avoid unnecessary complexity
+- **YAGNI**: You Aren't Gonna Need It - implement when actually needed
+- **Separation of Concerns**: Different aspects in distinct sections
+- **Composition > Inheritance**: Favor "has-a" over "is-a" relationships
+
+## Quality Guidelines
+- **Meaningful Names**: Variables/functions should reveal intent
+- **Fail Fast**: Report errors as early as possible
+- **Law of Demeter**: Only talk to immediate friends (`a.b.c.d()` = bad)
+- **Defensive Programming**: Validate inputs, handle edge cases
+- **Code for Readability**: Code is read more than written
+
+## Best Practices
+- **Single Source of Truth**: One authoritative data representation
+- **Graceful Degradation**: Continue operating when components fail
+- **Consistency**: Follow established patterns and conventions
+- **Test-Driven Approach**: Write tests before fixing bugs
+- **Continuous Refactoring**: Leave code cleaner than you found it
+
+Apply these principles contextually - balance them when they conflict.

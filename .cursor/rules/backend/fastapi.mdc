@@ -1,0 +1,101 @@
+---
+description: FastAPI best practices and patterns for building modern Python web APIs
+globs: **/*.py, app/**/*.py, api/**/*.py
+alwaysApply: false
+---
+
+# FastAPI Best Practices
+
+## Project Structure
+app/
+├── main.py # FastAPI app instance
+├── routers/ # Route modules by domain
+├── models/ # Pydantic models
+├── schemas/ # Request/Response schemas
+├── dependencies/ # Dependency injection
+└── core/ # Config, security, database
+
+## Essential Patterns
+
+### Route Organization
+```python
+# routers/users.py
+from fastapi import APIRouter, Depends
+router = APIRouter(prefix="/users", tags=["users"])
+
+@router.get("/", response_model=List[UserResponse])
+async def get_users(db: Session = Depends(get_db)):
+    return crud.get_users(db)
+```
+
+### Dependency Injection
+```python
+# dependencies/database.py
+async def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+### Pydantic Models
+```python
+# schemas/user.py
+class UserBase(BaseModel):
+    email: EmailStr
+
+class UserCreate(UserBase):
+    password: str
+
+class UserResponse(UserBase):
+    id: int
+    class Config:
+        from_attributes = True
+```
+
+## Key Practices
+- **Async by default**: Use `async def` for I/O operations
+- **Type hints**: Always use proper type annotations
+- **Response models**: Define explicit response schemas
+- **Error handling**: Use `HTTPException` with proper status codes
+- **Validation**: Leverage Pydantic's built-in validation
+- **Dependencies**: Use `Depends()` for database, auth, etc.
+
+## Security Essentials
+```python
+# JWT Authentication
+from fastapi.security import HTTPBearer
+security = HTTPBearer()
+
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+```
+
+## Database Integration
+```python
+# SQLAlchemy async pattern
+from sqlalchemy.ext.asyncio import AsyncSession
+
+async def get_user(db: AsyncSession, user_id: int):
+    result = await db.execute(select(User).where(User.id == user_id))
+    return result.scalar_one_or_none()
+```
+
+## Configuration
+```python
+# core/config.py
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    database_url: str
+    secret_key: str
+
+    class Config:
+        env_file = ".env"
+```
+
+Follow FastAPI's automatic documentation generation and leverage its built-in validation and serialization features.

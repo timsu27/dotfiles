@@ -1,0 +1,139 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Deployment Fundamentals
+
+Essential deployment practices covering containerization, CI/CD, and environment management.
+
+## Container Strategy
+
+### Dockerfile Best Practices
+```dockerfile
+# Multi-stage build
+FROM python:3.12-slim as base
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM base as production
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
+```
+
+### Key Principles
+- **Multi-stage builds**: Reduce image size
+- **Non-root user**: Run containers with minimal privileges
+- **Layer caching**: Order commands by change frequency
+- **Health checks**: Define container health endpoints
+- **Secrets**: Use environment variables, never embed in images
+
+## Environment Management
+
+### Configuration
+```yaml
+# docker-compose.yml
+services:
+  app:
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+    env_file: .env.production
+```
+
+### Environment Separation
+- **Development**: Local containers with hot reload
+- **Staging**: Production-like environment for testing
+- **Production**: Optimized for performance and security
+
+## CI/CD Pipeline
+
+### Basic Workflow
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and push
+        run: |
+          docker build -t app:${{ github.sha }} .
+          docker push app:${{ github.sha }}
+```
+
+### Pipeline Stages
+1. **Test**: Run automated tests
+2. **Build**: Create container images
+3. **Security**: Scan for vulnerabilities
+4. **Deploy**: Deploy to target environment
+5. **Verify**: Health checks and smoke tests
+
+## Deployment Patterns
+
+### Rolling Deployment
+- **Zero downtime**: Gradual instance replacement
+- **Rollback capability**: Keep previous version available
+- **Health monitoring**: Continuous health checks
+
+### Blue-Green Deployment
+- **Two environments**: Blue (current), Green (new)
+- **Instant switch**: Router traffic redirection
+- **Safe rollback**: Switch back if issues arise
+
+## Monitoring & Health
+
+### Health Checks
+```python
+# FastAPI health endpoint
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "timestamp": datetime.utcnow()}
+```
+
+### Essential Metrics
+- **Response time**: API latency monitoring
+- **Error rates**: 4xx/5xx error tracking
+- **Resource usage**: CPU, memory, disk
+- **Business metrics**: User activity, throughput
+
+## Security Practices
+### Container Security
+- **Base images**: Use official, minimal images
+- **Updates**: Regular security patches
+- **Scanning**: Vulnerability assessment in CI
+- **Secrets**: External secret management
+
+### Network Security
+- **HTTPS**: TLS termination at load balancer
+- **Firewall**: Restrict unnecessary ports
+- **VPC**: Network isolation
+- **Rate limiting**: API protection
+
+## Deployment Checklist
+
+**Pre-deployment**
+- [ ] Tests pass in CI
+- [ ] Security scans clear
+- [ ] Database migrations ready
+- [ ] Rollback plan prepared
+
+**Deployment**
+- [ ] Deploy to staging first
+- [ ] Verify health checks
+- [ ] Monitor error rates
+- [ ] Check performance metrics
+
+**Post-deployment**
+- [ ] Smoke tests pass
+- [ ] User acceptance validation
+- [ ] Monitor for 24h
+- [ ] Document any issues
+
+Focus on automation, monitoring, and safe rollback capabilities for reliable deployments.
